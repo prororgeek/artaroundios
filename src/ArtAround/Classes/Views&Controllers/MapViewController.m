@@ -11,6 +11,7 @@
 #import "FilterViewController.h"
 #import "AAAPIManager.h"
 #import "Art.h"
+#import "Tag.h"
 #import "ArtAnnotation.h"
 #import "ArtAnnotationView.h"
 #import "CalloutAnnotationView.h"
@@ -106,7 +107,7 @@ static const int _kAnnotationLimit = 9999;
     [buttonView addSubview:btnLabel];
     
     //key Button
-    keyButton = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, keyButtonImage.size.width, keyButtonImage.size.height)];
+    keyButton = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, keyButtonImage.size.width+2, keyButtonImage.size.height+6)];
     [keyButton setImage:keyButtonImage];
     keyButton.backgroundColor=[UIColor clearColor];
     
@@ -223,6 +224,7 @@ static const int _kAnnotationLimit = 9999;
     community.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     //  [community setImage:[UIImage imageNamed:@"Pinred.png"] forState:UIControlStateNormal];
     // [community setImageEdgeInsets:UIEdgeInsetsMake(0, 0 , 0, 0)];
+    [community setEnabled:NO];
     [self.view bringSubviewToFront:community];
     [keyView addSubview:community];
     
@@ -246,6 +248,7 @@ static const int _kAnnotationLimit = 9999;
     [catalog setTintColor:[UIColor colorWithRed:(95.0f/255.0f) green:(190.0f/255.0f) blue:(195.0f/255.0f) alpha:1.0]];
     [catalog setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     catalog.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [catalog setEnabled:NO];
     // [catalog setImage:[UIImage imageNamed:@"Pinteal.png"] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:catalog];
     [keyView addSubview:catalog];
@@ -268,6 +271,7 @@ static const int _kAnnotationLimit = 9999;
     [streetart setTintColor:[UIColor colorWithRed:(231.0f/255.0f) green:(181.0f/255.0f) blue:(0.0f/255.0f) alpha:1.0]];
     [streetart setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     streetart.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [streetart setEnabled:NO];
     //[streetart setImage:[UIImage imageNamed:@"Pinyellow.png"] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:streetart];
     [keyView addSubview:streetart];
@@ -292,6 +296,7 @@ static const int _kAnnotationLimit = 9999;
     [museums setTintColor:[UIColor colorWithRed:(68.0f/255.0f) green:(92.0f/255.0f) blue:(170.0f/255.0f) alpha:1.0]];
     [museums setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     museums.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [museums setEnabled:NO];
     //   [museums setImage:[UIImage imageNamed:@"Pinblue.png"] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:museums];
     [keyView addSubview:museums];
@@ -316,6 +321,7 @@ static const int _kAnnotationLimit = 9999;
     [artchive setTintColor:[UIColor colorWithRed:(136.0f/255.0f) green:(136.0f/255.0f) blue:(136.0f/255.0f) alpha:1.0]];
     [artchive setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     artchive.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [artchive setEnabled:NO];
     // [artchive setImage:[UIImage imageNamed:@"Pinblue.png"] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:artchive];
     [keyView addSubview:artchive];
@@ -557,6 +563,8 @@ static const int _kAnnotationLimit = 9999;
 -(void)updateAndShowArt:(Art*)showArt
 {
     categoryArray=[[NSMutableArray alloc]init];
+    tagArray=[[NSMutableArray alloc]init];
+    
     x=0;
 	//get art from core data
 	NSEntityDescription *entity = [NSEntityDescription entityForName:@"Art" inManagedObjectContext:[AAAPIManager managedObjectContext]];
@@ -692,6 +700,17 @@ static const int _kAnnotationLimit = 9999;
         {
              [categoryArray insertObject:@"nil" atIndex:i];
         }
+        NSString *tag =[art tagString];
+        if (tag) {
+            [tagArray insertObject:tag atIndex:i];
+            x++;
+            
+        }
+        else
+        {
+            [tagArray insertObject:@"nil" atIndex:i];
+        }
+
        
        		if ([art.latitude doubleValue] && [art.longitude doubleValue]) {
 			
@@ -752,168 +771,169 @@ static const int _kAnnotationLimit = 9999;
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
-	//if it's the user location, just return nil.
-	if ([annotation isKindOfClass:[MKUserLocation class]]) {
-		return nil;
-	}
-	
-	if ([annotation isKindOfClass:[ArtAnnotation class]]) {
-	
-		//setup the annotation view for the annotation
-		int index = [(ArtAnnotation *)annotation index];
-		if ([_items count] > index) {
-			
-            if ([[categoryArray objectAtIndex:index ]isEqualToString:@"Community"]) {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
-                
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_red.png"];
-                
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
-                
-                //return the annotion view
-                return pin;
+    //if it's the user location, just return nil.
+    if ([annotation isKindOfClass:[MKUserLocation class]]) {
+        return nil;
+    }
+    
+    if ([annotation isKindOfClass:[ArtAnnotation class]]) {
+        
+        //setup the annotation view for the annotation
+        int index = [(ArtAnnotation *)annotation index];
+        if ([_items count] > index) {
+            NSString *string =[tagArray objectAtIndex:index ];
+            NSMutableArray *arraySort = [[NSMutableArray alloc] init];
+            NSMutableArray * array = [[NSMutableArray alloc] init];
+            array = [string componentsSeparatedByString:@","];
+            for (int i=0; i<array.count; i++) {
+                NSString *str =[array objectAtIndex:i];
+                if(str.length!=0)
+                {
+                    NSString *str2 = [[str stringByReplacingOccurrencesOfString:@" " withString:@""] capitalizedString];
+                    [arraySort addObject:str2];
+                }
             }
-            if ([[categoryArray objectAtIndex:index ]isEqualToString:@"Catalog"]) {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
+            array = [[NSMutableArray alloc] init];
+            array = [arraySort mutableCopy];
+            for (int i =0; i<array.count; i++) {
                 
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_green.png"];
+                if ([[array objectAtIndex:i ]isEqualToString:@"Community"]||[[array objectAtIndex:i ]isEqualToString:@"community"]) {
+                    //setup the pin image and reuse identifier
+                    NSString *reuseIdentifier = nil;
+                    UIImage *pinImage = nil;
+                    
+                    //new single pinart
+                    reuseIdentifier = @"art";
+                    pinImage = [UIImage imageNamed:@"red.png"];
+                    
+                    //setup the annotation view
+                    ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
+                    [pin setImage:pinImage];
+                    [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
+                    [pin setCanShowCallout:NO];
+                    [pin setTag:index];
+                    
+                    //return the annotion view
+                    return pin;
+                }
+                else if ([[array objectAtIndex:i ]isEqualToString:@"Catalog"]||[[array objectAtIndex:i ]isEqualToString:@"catalog"]) {
+                    //setup the pin image and reuse identifier
+                    NSString *reuseIdentifier = nil;
+                    UIImage *pinImage = nil;
+                    
+                    //new single pinart
+                    reuseIdentifier = @"art";
+                    pinImage = [UIImage imageNamed:@"green.png"];
+                    
+                    //setup the annotation view
+                    ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
+                    [pin setImage:pinImage];
+                    [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
+                    [pin setCanShowCallout:NO];
+                    [pin setTag:index];
+                    
+                    //return the annotion view
+                    return pin;
+                }
                 
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
+                if ([[array objectAtIndex:i ]isEqualToString:@"Streetarthotspot"] || [[array objectAtIndex:i ]isEqualToString:@"street art hot spot"] ) {
+                    //setup the pin image and reuse identifier
+                    NSString *reuseIdentifier = nil;
+                    UIImage *pinImage = nil;
+                    
+                    //new single pinart
+                    reuseIdentifier = @"art";
+                    pinImage = [UIImage imageNamed:@"yellow.png"];
+                    
+                    //setup the annotation view
+                    ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
+                    [pin setImage:pinImage];
+                    [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
+                    [pin setCanShowCallout:NO];
+                    [pin setTag:index];
+                    
+                    //return the annotion view
+                    return pin;
+                }
                 
-                //return the annotion view
-                return pin;
+                
+                
+                
+                if ([[array objectAtIndex:i ]isEqualToString:@"Artchive"]||[[array objectAtIndex:i ]isEqualToString:@"artchive"]) {
+                    //setup the pin image and reuse identifier
+                    NSString *reuseIdentifier = nil;
+                    UIImage *pinImage = nil;
+                    
+                    //new single pinart
+                    reuseIdentifier = @"art";
+                    pinImage = [UIImage imageNamed:@"gray.png"];
+                    
+                    //setup the annotation view
+                    ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
+                    [pin setImage:pinImage];
+                    [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
+                    [pin setCanShowCallout:NO];
+                    [pin setTag:index];
+                    
+                    //return the annotion view
+                    return pin;
+                }
+                
             }
+            NSString *string2 =[categoryArray objectAtIndex:index ];
             
-            if ([[categoryArray objectAtIndex:index ]isEqualToString:@"Museum"] || [[categoryArray objectAtIndex:index ]isEqualToString:@"Gallery"] ) {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
-                
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_blue.png"];
-                
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
-                
-                //return the annotion view
-                return pin;
-            }
-            if ([[categoryArray objectAtIndex:index ]isEqualToString:@"Street art hot spot"] ) {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
-                
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_blue.png"];
-                
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
-                
-                //return the annotion view
-                return pin;
-            }
-
+            NSArray * array2 = [string2 componentsSeparatedByString:@","];
+            for (int i =0; i<array2.count; i++) {
+                if ([[array2 objectAtIndex:i ]isEqualToString:@"Museum"] || [[array2 objectAtIndex:i ]isEqualToString:@"Gallery"] ) {
+                    //setup the pin image and reuse identifier
+                    NSString *reuseIdentifier = nil;
+                    UIImage *pinImage = nil;
+                    
+                    //new single pinart
+                    reuseIdentifier = @"art";
+                    pinImage = [UIImage imageNamed:@"blue.png"];
+                    
+                    //setup the annotation view
+                    ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
+                    [pin setImage:pinImage];
+                    [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
+                    [pin setCanShowCallout:NO];
+                    [pin setTag:index];
+                    
+                    //return the annotion view
+                    return pin;
+                }}
             
-
             
-            if ([[categoryArray objectAtIndex:index ]isEqualToString:@"Artchive"]) {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
-                
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_gray.png"];
-                
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
-                
-                //return the annotion view
-                return pin;
-            }
-          
-            else
-            {
-                //setup the pin image and reuse identifier
-                NSString *reuseIdentifier = nil;
-                UIImage *pinImage = nil;
-                
-                //new single pinart
-                reuseIdentifier = @"art";
-                pinImage = [UIImage imageNamed:@"pin_red.png"];
-                
-                //setup the annotation view
-                ArtAnnotationView *pin = [[[ArtAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:reuseIdentifier] autorelease];
-                [pin setImage:pinImage];
-                [pin setRightCalloutAccessoryView:[UIButton buttonWithType:UIButtonTypeDetailDisclosure]];
-                [pin setCanShowCallout:NO];
-                [pin setTag:index];
-                
-                //return the annotion view
-                return pin;
-            }
+        }
+        
+    } else if ([annotation isKindOfClass:[CalloutAnnotationView class]]) {
+        
+        //center the map on the callout annotation
+        //return the callout annotation view
+        if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
+            
+            //landscape
+            //exactly center on landscape has the callout off the screen, gotta take an extra step to show it
+            [mapView setCenterCoordinate:[(CalloutAnnotationView *)annotation coordinate] animated:NO];
+            CGPoint point = [mapView convertCoordinate:[(CalloutAnnotationView *)annotation coordinate] toPointToView:mapView];
+            CLLocationCoordinate2D coordinate = [mapView convertPoint:CGPointMake(mapView.frame.size.width / 2, point.y - 70.0) toCoordinateFromView:mapView];
+            [mapView setCenterCoordinate:coordinate animated:YES];
+            
+            
+        } else {
+            
+            //portrait
+            [mapView setCenterCoordinate:[(CalloutAnnotationView *)annotation coordinate] animated:YES];
+            
+        }
+        return (CalloutAnnotationView *)annotation;
+        
+    }
+    
+    //something must have gone wrong
+    return nil;
 
-			
-		}
-		
-	} else if ([annotation isKindOfClass:[CalloutAnnotationView class]]) {
-		
-		//center the map on the callout annotation
-		//return the callout annotation view
-		if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
-			
-			//landscape
-			//exactly center on landscape has the callout off the screen, gotta take an extra step to show it
-			[mapView setCenterCoordinate:[(CalloutAnnotationView *)annotation coordinate] animated:NO];
-			CGPoint point = [mapView convertCoordinate:[(CalloutAnnotationView *)annotation coordinate] toPointToView:mapView];
-			CLLocationCoordinate2D coordinate = [mapView convertPoint:CGPointMake(mapView.frame.size.width / 2, point.y - 70.0) toCoordinateFromView:mapView];
-			[mapView setCenterCoordinate:coordinate animated:YES];
-			
-			
-		} else {
-			
-			//portrait
-			[mapView setCenterCoordinate:[(CalloutAnnotationView *)annotation coordinate] animated:YES];
-			
-		}
-		return (CalloutAnnotationView *)annotation;
-		
-	}
-
-	//something must have gone wrong
-	return nil;
 }
 
 

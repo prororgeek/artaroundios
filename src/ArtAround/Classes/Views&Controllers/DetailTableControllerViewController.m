@@ -743,7 +743,7 @@ static const float _kRowBufffer = 20.0f;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 14;
+    return 15;
 }
 
 - (UITableViewCell*)cellForRow:(ArtDetailRow)row
@@ -775,6 +775,7 @@ static const float _kRowBufffer = 20.0f;
             case ArtDetailRowLocationType:
             case ArtDetailRowLink:
             case ArtDetailRowCategory:
+            case ArtDetailRowTag:
             {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
                 cell.detailTextLabel.numberOfLines = 0;
@@ -874,6 +875,7 @@ static const float _kRowBufffer = 20.0f;
             case ArtDetailRowLocationType:
             case ArtDetailRowLink:
             case ArtDetailRowCategory:
+            case ArtDetailRowTag:
             {
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellIdentifier];
                 cell.detailTextLabel.numberOfLines = 1;
@@ -973,6 +975,12 @@ static const float _kRowBufffer = 20.0f;
                         cell.detailTextLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f];
                         break;
                     }
+                    case ArtDetailRowTag:
+                    {
+                        cell.detailTextLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f];
+                        break;
+                    }
+
                     default:
                         break;
                 }
@@ -1207,6 +1215,27 @@ static const float _kRowBufffer = 20.0f;
             
             break;
         }
+        case ArtDetailRowTag:
+        {
+            if (!_inEditMode) {
+                cell.textLabel.text = @"tags";
+                
+                if ([_newArtDictionary objectForKey:@"tags"] && [[_newArtDictionary objectForKey:@"tags"] count] > 0) {
+                    NSString *cats = [[_newArtDictionary objectForKey:@"tags"] componentsJoinedByString:@", "];
+                    cell.detailTextLabel.text = cats;
+                }
+                else if (_art.tags && [_art.tags count] > 0)
+                    cell.detailTextLabel.text = [_art tagString];
+                else {
+                    cell.detailTextLabel.text = (_inEditMode) ? @"Tags" : @"";
+                    cell.textLabel.text = (_inEditMode) ? @"tags" : @"";
+                }
+                
+            }
+            
+            break;
+        }
+
         case ArtDetailRowDescription:
         {
             if (!_inEditMode) {
@@ -1457,6 +1486,7 @@ static const float _kRowBufffer = 20.0f;
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
     CGFloat height = 0.0f;
     
     if (_inEditMode) {
@@ -1488,6 +1518,11 @@ static const float _kRowBufffer = 20.0f;
             }
             case ArtDetailRowLocationMap:
             case ArtDetailRowComments:
+            case ArtDetailRowTag:
+            {
+                height = 0.0f;
+                break;
+            }
             case ArtDetailRowAddComment:
             {
                 height = 0.0f;
@@ -1610,6 +1645,25 @@ static const float _kRowBufffer = 20.0f;
                 
                 break;
             }
+            case ArtDetailRowTag:
+            {
+                if ([[[_newArtDictionary objectForKey:@"tags"] componentsJoinedByString:@", "] length] > 0) {
+                    CGSize labelSize = CGSizeMake(203.0f, 10000.0f);
+                    CGSize requiredLabelSize = [[[_newArtDictionary objectForKey:@"tags"] componentsJoinedByString:@", "] sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f] constrainedToSize:labelSize lineBreakMode:NSLineBreakByWordWrapping];
+                    height = requiredLabelSize.height;
+                }
+                else if ([_art.tagString length] > 0) {
+                    CGSize labelSize = CGSizeMake(205.0f, 10000.0f);
+                    CGSize requiredLabelSize = [_art.tagString sizeWithFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f] constrainedToSize:labelSize lineBreakMode:NSLineBreakByWordWrapping];
+                    height = requiredLabelSize.height;
+                }
+                else {
+                    height = 0;
+                }
+                
+                break;
+            }
+                
             case ArtDetailRowDescription:
             {
                 if ([[_newArtDictionary objectForKey:@"description"] length] > 0) {

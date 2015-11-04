@@ -1066,10 +1066,11 @@
 {
     
     //save flash mode in case it changed
+    if (picker.cameraFlashMode ==
+        UIImagePickerControllerCameraFlashModeOff) {
     NSNumber *flashMode = [[NSNumber alloc] initWithInteger:picker.cameraFlashMode];
     [[Utilities instance] setFlashMode:flashMode];
-    
-    //dismiss the picker view
+    }
     [self dismissViewControllerAnimated:YES completion:^{
         
         // Get the image from the result
@@ -1088,7 +1089,7 @@
             
         }
         else {
-
+            
             NSURL *assetURL = [info valueForKey:UIImagePickerControllerReferenceURL];
             
             [assetLibrary assetForURL:assetURL
@@ -1106,7 +1107,7 @@
                                   
                               }
                               else {
-                                   DebugLog(@"No location for image");
+                                  DebugLog(@"No location for image");
                               }
                               
                           }
