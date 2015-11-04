@@ -10,31 +10,31 @@
 	<string>ArtAround</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>EF1DA81C0848337371CB23CEA6AE4FD61E29CEC8</key>
-		<string>https://github.com/prororgeek/artaround-ios.git</string>
+		<key>24D7B7DCD2E0A492CAC7868B3C3A047A627D1761</key>
+		<string>https://github.com/prororgeek/artaroundios.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>src/ArtAround.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>EF1DA81C0848337371CB23CEA6AE4FD61E29CEC8</key>
+		<key>24D7B7DCD2E0A492CAC7868B3C3A047A627D1761</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/prororgeek/artaround-ios.git</string>
+	<string>https://github.com/prororgeek/artaroundios.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>EF1DA81C0848337371CB23CEA6AE4FD61E29CEC8</string>
+	<string>24D7B7DCD2E0A492CAC7868B3C3A047A627D1761</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>EF1DA81C0848337371CB23CEA6AE4FD61E29CEC8</string>
+			<string>24D7B7DCD2E0A492CAC7868B3C3A047A627D1761</string>
 			<key>IDESourceControlWCCName</key>
-			<string>artaround-ios</string>
+			<string>artaroundios</string>
 		</dict>
 	</array>
 </dict>
